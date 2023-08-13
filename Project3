@@ -1,0 +1,158 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <iterator>
+#include <stdexcept>
+
+using namespace std;
+
+void KSA(const vector<unsigned char>& key, vector<unsigned char>& S) {
+    int keylength = key.size();
+    for (int i = 0; i < 256; i++) {
+        S[i] = i;
+    }
+    int j = 0;
+    for (int i = 0; i < 256; i++) {
+        j = (j + S[i] + key[i % keylength]) % 256;
+        swap(S[i], S[j]);
+    }
+}
+
+void PRGA(const vector<unsigned char>& plaintext, vector<unsigned char>& S, vector<unsigned char>& ciphertext) {
+    int i = 0, j = 0;
+    int plaintextlength = plaintext.size();
+    for (int k = 0; k < plaintextlength; k++) {
+        i = (i + 1) % 256;
+        j = (j + S[i]) % 256;
+        swap(S[i], S[j]);
+        int t = (S[i] + S[j]) % 256;
+        ciphertext.push_back(S[t] ^ plaintext[k]);
+    }
+}
+
+vector<unsigned char> readBinaryFile(const string& filename) {
+    ifstream file(filename, ios::binary);
+    if (!file) {
+        throw runtime_error("Error: Cannot open file " + filename);
+    }
+    vector<unsigned char> content((istreambuf_iterator<char>(file)), (istreambuf_iterator<char>()));
+    file.close();
+    return content;
+}
+
+void writeHexFile(const string& filename, const vector<unsigned char>& data) {
+    ofstream file(filename, ios::binary);
+    if (!file) {
+        throw runtime_error("Error: Cannot open file " + filename);
+    }
+    for (size_t i = 0; i < data.size(); i++) {
+        file << hex << static_cast<int>(data[i]);
+    }
+    file.close();
+}
+
+int main() {
+    cout << "----------------------------------------------" << endl;
+    cout << "|      RC4 Encryption and Decryption Program  |" << endl;
+    cout << "----------------------------------------------" << endl;
+
+    cout << "Welcome to the RC4 Encryption and Decryption Program!" << endl;
+    cout << "1. Encrypt and Decrypt a Message from a Text File" << endl;
+    cout << "2. Encrypt and Decrypt a Manually Entered Message" << endl << endl;
+
+    char choice;
+    cout << "Enter your choice (1 or 2): ";
+    cin >> choice;
+
+    if (choice == '1') {
+        // Encrypt and decrypt from a text file
+        string keyfile, inputfile, outputfile;
+        cout << "Enter key file name: ";
+        cin >> keyfile;
+        cout << "Enter input file name: ";
+        cin >> inputfile;
+        cout << "Enter output file name: ";
+        cin >> outputfile;
+
+        try {
+            vector<unsigned char> key = readBinaryFile(keyfile);
+            vector<unsigned char> plaintext = readBinaryFile(inputfile);
+            if (key.size() < 5 || key.size() > 32) {
+                cerr << "Error: Key must be between 5 and 32 bytes long" << endl;
+                return 1;
+            }
+            vector<unsigned char> S(256);
+            KSA(key, S);
+            int discard = 3072;
+            int j = 0;
+            while (discard--) {
+                int i = (discard + 1) % 256;
+                j = (S[i] + j) % 256;
+                swap(S[i], S[j]);
+            }
+            vector<unsigned char> ciphertext;
+            PRGA(plaintext, S, ciphertext);
+            writeHexFile(outputfile, ciphertext);
+            cout << "Encryption/Decryption successful. Ciphertext written to " << outputfile << endl;
+        }
+        catch (const exception& e) {
+            cerr << "Error: " << e.what() << endl;
+            return 1;
+        }
+    }
+    else if (choice == '2') {
+        // Encrypt and decrypt a manually entered message
+        std::vector<unsigned char> key;
+        std::cout << "Enter the key (between 5 and 32 bytes): ";
+        std::string keyInput;
+        std::cin.ignore();
+        std::getline(std::cin, keyInput);
+        key = std::vector<unsigned char>(keyInput.begin(), keyInput.end());
+
+        if (key.size() < 5 || key.size() > 32) {
+            std::cerr << "Error: Key must be between 5 and 32 bytes long" << std::endl;
+            return 1;
+        }
+
+        std::vector<unsigned char> plaintext;
+        std::cout << "Enter the message to encrypt/decrypt: ";
+        std::string message;
+        std::cin.ignore();  // Consume the newline character left by previous input
+        std::getline(std::cin, message);
+        plaintext = std::vector<unsigned char>(message.begin(), message.end());
+        vector<unsigned char> S(256);
+        KSA(key, S);
+        int discard = 3072;
+        int j = 0;
+        while (discard--) {
+            int i = (discard + 1) % 256;
+            j = (S[i] + j) % 256;
+            swap(S[i], S[j]);
+        }
+        vector<unsigned char> ciphertext;
+        PRGA(plaintext, S, ciphertext);
+        cout << "Encrypted message in hexadecimal: ";
+        for (size_t i = 0; i < ciphertext.size(); i++) {
+            cout << hex << static_cast<int>(ciphertext[i]);
+        }
+        cout << endl;
+
+        // Decrypt the ciphertext
+        vector<unsigned char> decryptedPlaintext;
+        PRGA(ciphertext, S, decryptedPlaintext);
+        cout << "Decrypted message in hexadecimal (converted to numbers): ";
+        for (size_t i = 0; i < decryptedPlaintext.size(); i++) {
+            cout << static_cast<int>(decryptedPlaintext[i]) << " ";
+        }
+        cout << endl;
+
+        cout << "Decrypted plaintext: ";
+        for (size_t i = 0; i < decryptedPlaintext.size(); i++) {
+            cout << decryptedPlaintext[i];
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
