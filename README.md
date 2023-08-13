@@ -1,5 +1,3 @@
-# rcaC-encrpt
-
 RC4 Encryption and Decryption Program
 This program allows you to securely encrypt and decrypt messages using the RC4 stream cipher. RC4 is a symmetric key cipher known for its efficiency in generating a pseudo-random stream of bytes, which is used to protect the confidentiality of your messages. By providing an encryption key, you can encode your messages, and then decode them back to their original form using the same key.
 
@@ -20,6 +18,3 @@ Getting Started
 Clone the repository: git clone https://github.com/your-username/rc4-encryption.git
 Compile the program: g++ rc4.cpp -o rc4
 Run the program: ./rc4
-Dependencies
-C++ compiler (e.g., g++)
-Standard C++ library
