@@ -1,0 +1,59 @@
+# RC4 Encryption and Decryption Program
+
+The RC4 Encryption and Decryption Program is a simple application that allows you to encrypt and decrypt messages using the RC4 encryption algorithm. It provides two modes of operation:
+
+1. Encrypt and Decrypt a Message from a Text File.
+2. Encrypt and Decrypt a Manually Entered Message.
+
+## Prerequisites
+
+Before using this program, ensure that you have the following:
+
+- A C++ compiler capable of compiling C++11 or later.
+- A text file for reading and writing messages (for option 1).
+- Basic knowledge of the RC4 encryption algorithm.
+
+## Getting Started
+
+1. Clone or download the source code to your local machine.
+
+2. Compile the program using your C++ compiler. For example:
+
+   ```sh
+   g++ -std=c++11 rc4.cpp -o rc4
+   ```
+
+   Replace `g++` with your C++ compiler command if necessary.
+
+3. Run the compiled program:
+
+   ```sh
+   ./rc4
+   ```
+
+## Usage
+
+The program provides two options:
+
+### Option 1: Encrypt and Decrypt a Message from a Text File
+
+- Enter '1' when prompted.
+- Provide the following information:
+  - Key file name: Enter the name of the file containing the encryption key.
+  - Input file name: Enter the name of the file containing the plaintext message.
+  - Output file name: Enter the name of the file where the ciphertext will be saved.
+
+### Option 2: Encrypt and Decrypt a Manually Entered Message
+
+- Enter '2' when prompted.
+- Enter the encryption key (between 5 and 32 bytes) when prompted.
+- Enter the message to encrypt/decrypt.
+
+## Important Notes
+
+- The RC4 encryption algorithm is sensitive to the key length. Ensure that your key is between 5 and 32 bytes long.
+
+- For option 1, the program reads the key and plaintext message from files and writes the ciphertext to a file.
+
+- For option 2, the program allows you to manually enter the key and message and provides the encrypted result.
+
